@@ -1,9 +1,9 @@
 package calculator.core;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Calculator {
-    public static int calculateSum(ArrayList<Integer> arrayList){
+    public static int calculateSum(List<Integer> arrayList){
         return arrayList.stream().mapToInt(Integer::intValue).sum();
     }
 }

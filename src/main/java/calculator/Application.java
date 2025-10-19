@@ -5,7 +5,7 @@ import calculator.input.InputReader;
 import calculator.output.MessagePrinter;
 import calculator.parser.InputParser;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static camp.nextstep.edu.missionutils.Console.readLine;
 
@@ -16,7 +16,7 @@ public class Application {
     public void run() {
         printInputMessage();
         String input = readUserInput();
-        ArrayList<Integer> numbers = parseInput(input);
+        List<Integer> numbers = parseInput(input);
         int result = calculate(numbers);
         printResult(result);
     }
@@ -31,11 +31,11 @@ public class Application {
         return inputReader.getInputString();
     }
 
-    private ArrayList<Integer> parseInput(String input){
+    private List<Integer> parseInput(String input){
         return InputParser.parse(input);
     }
 
-    private int calculate(ArrayList<Integer> numbers) {
+    private int calculate(List<Integer> numbers) {
         return Calculator.calculateSum(numbers);
     }
 

@@ -1,43 +1,51 @@
 package calculator.parser;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class InputParser {
 
-    private static final String COMMA_DELIMITER = ",";
-    private static final String COLON_DELIMITER = ":";
+    private static final String DEFAULT_DELIMITERS = ",|:";
+    private static final Pattern CUSTOM_DELIMITER_PATTERN = Pattern.compile("//(.)\\\\n(.*)");
 
-    private static final String CUSTOM_DELIMITER_START = "//";
-    private static final String CUSTOM_DELIMITER_END = "\\n";
+    public static List<Integer> parse(String input){
+        String delimiter = DEFAULT_DELIMITERS;
+        String filteredString = input;
 
-    public static ArrayList<Integer> parse(String inputString){
-        String customDelimiter = null;
-        String trimedInputString = inputString;
-        String[] tokens;
-        if (inputString.startsWith(CUSTOM_DELIMITER_START)&&
-                inputString.startsWith(CUSTOM_DELIMITER_END, CUSTOM_DELIMITER_START.length()+1)){
-            customDelimiter = inputString.substring(CUSTOM_DELIMITER_START.length(), CUSTOM_DELIMITER_START.length()+1);
-            trimedInputString = inputString.substring(inputString.indexOf(CUSTOM_DELIMITER_END)+CUSTOM_DELIMITER_END.length());
+        Matcher matcher = CUSTOM_DELIMITER_PATTERN.matcher(input);
+        if (matcher.matches()){
+            delimiter += "|" + Pattern.quote(matcher.group(1));
+            filteredString = matcher.group(2);
         }
-        if (customDelimiter == null){
-            tokens = trimedInputString.split(COMMA_DELIMITER + "|" + COLON_DELIMITER);
-        } else {
-            tokens = trimedInputString.split(COMMA_DELIMITER+"|"+COLON_DELIMITER+"|"+ Pattern.quote(customDelimiter));
-        }
-        ArrayList<Integer> parsedIntArray = new ArrayList<>();
-
-        for (String s : tokens){
-            try {
-                long number = Long.parseLong(s);
-                if (number < 0 || number > Integer.MAX_VALUE) {
-                    throw new IllegalArgumentException();
-                }
-                parsedIntArray.add((int) number);
-            } catch (NumberFormatException e){
-                throw new IllegalArgumentException();
-            }
-        }
-        return parsedIntArray;
+        return extractNumbers(filteredString, delimiter);
     }
+
+    public static List<Integer> extractNumbers(String input, String delimiterRegex) {
+        List<Integer> result = new ArrayList<>();
+        if (input == null || input.isEmpty()){
+            return result;
+        }
+
+        String[] tokens = input.split(delimiterRegex);
+        for (String token: tokens){
+            int number = parsePositiveInteger(token);
+            result.add(number);
+        }
+        return result;
+    }
+
+    public static int parsePositiveInteger(String token){
+        try {
+            int value = Integer.parseInt(token);
+            if (value < 0) {
+                throw new IllegalArgumentException("음수는 허용되지 않습니다: " + token);
+            }
+            return value;
+        } catch (NumberFormatException e){
+            throw new IllegalArgumentException("유효하지 않은 숫자 형식입니다: " + token, e);
+        }
+    }
+
 }
